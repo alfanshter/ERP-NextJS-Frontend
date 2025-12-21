@@ -7,12 +7,14 @@ import {
     PiBagSimpleDuotone,
     PiUsersDuotone,
     PiBuildingOfficeDuotone,
+    PiChartLineUpDuotone,
 } from 'react-icons/pi'
 import type { JSX } from 'react'
 
 export type NavigationIcons = Record<string, JSX.Element>
 
 const navigationIcon: NavigationIcons = {
+    dashboard: <PiChartLineUpDuotone />,
     home: <PiHouseLineDuotone />,
     users: <PiUsersDuotone />,
     building: <PiBuildingOfficeDuotone />,
