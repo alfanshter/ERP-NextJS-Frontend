@@ -5,32 +5,34 @@ import Avatar from '@/components/ui/Avatar'
 import Tag from '@/components/ui/Tag'
 import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
-import { useCustomerListStore } from '../_store/customerListStore'
+import { useCompanyListStore } from '../_store/companyListStore'
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { TbPencil, TbEye } from 'react-icons/tb'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
-import type { Customer } from '../types'
+import type { Company } from '../types'
 
-type CustomerListTableProps = {
-    customerListTotal: number
+type CompanyListTableProps = {
+    companyListTotal: number
     pageIndex?: number
     pageSize?: number
 }
 
 const statusColor: Record<string, string> = {
-    active: 'bg-emerald-200 dark:bg-emerald-200 text-gray-900 dark:text-gray-900',
-    blocked: 'bg-red-200 dark:bg-red-200 text-gray-900 dark:text-gray-900',
+    TRIAL: 'bg-blue-200 dark:bg-blue-200 text-gray-900 dark:text-gray-900',
+    ACTIVE: 'bg-emerald-200 dark:bg-emerald-200 text-gray-900 dark:text-gray-900',
+    INACTIVE: 'bg-gray-200 dark:bg-gray-200 text-gray-900 dark:text-gray-900',
+    SUSPENDED: 'bg-red-200 dark:bg-red-200 text-gray-900 dark:text-gray-900',
 }
 
-const NameColumn = ({ row }: { row: Customer }) => {
+const NameColumn = ({ row }: { row: Company }) => {
     return (
         <div className="flex items-center">
-            <Avatar size={40} shape="circle" src={row.img} />
+            <Avatar size={40} shape="circle" src={row.logo || undefined} />
             <Link
                 className={`hover:text-primary ml-2 rtl:mr-2 font-semibold text-gray-900 dark:text-gray-100`}
-                href={`/users/details/${row.id}`}
+                href={`/company/details/${row.id}`}
             >
                 {row.name}
             </Link>
@@ -69,38 +71,38 @@ const ActionColumn = ({
     )
 }
 
-const CustomerListTable = ({
-    customerListTotal,
+const CompanyListTable = ({
+    companyListTotal,
     pageIndex = 1,
     pageSize = 10,
-}: CustomerListTableProps) => {
+}: CompanyListTableProps) => {
     const router = useRouter()
 
-    const customerList = useCustomerListStore((state) => state.customerList)
-    const selectedCustomer = useCustomerListStore(
-        (state) => state.selectedCustomer,
+    const companyList = useCompanyListStore((state) => state.companyList)
+    const selectedCompany = useCompanyListStore(
+        (state) => state.selectedCompany,
     )
-    const isInitialLoading = useCustomerListStore(
+    const isInitialLoading = useCompanyListStore(
         (state) => state.initialLoading,
     )
-    const setSelectedCustomer = useCustomerListStore(
-        (state) => state.setSelectedCustomer,
+    const setSelectedCompany = useCompanyListStore(
+        (state) => state.setSelectedCompany,
     )
-    const setSelectAllCustomer = useCustomerListStore(
-        (state) => state.setSelectAllCustomer,
+    const setSelectAllCompany = useCompanyListStore(
+        (state) => state.setSelectAllCompany,
     )
 
     const { onAppendQueryParams } = useAppendQueryParams()
 
-    const handleEdit = (customer: Customer) => {
-        router.push(`/users/edit/${customer.id}`)
+    const handleEdit = (company: Company) => {
+        router.push(`/company/edit/${company.id}`)
     }
 
-    const handleViewDetails = (customer: Customer) => {
-        router.push(`/users/details/${customer.id}`)
+    const handleViewDetails = (company: Company) => {
+        router.push(`/company/details/${company.id}`)
     }
 
-    const columns: ColumnDef<Customer>[] = useMemo(
+    const columns: ColumnDef<Company>[] = useMemo(
         () => [
             {
                 header: 'Name',
@@ -115,8 +117,8 @@ const CustomerListTable = ({
                 accessorKey: 'email',
             },
             {
-                header: 'location',
-                accessorKey: 'personalInfo.location',
+                header: 'Phone',
+                accessorKey: 'phone',
             },
             {
                 header: 'Status',
@@ -133,10 +135,17 @@ const CustomerListTable = ({
                 },
             },
             {
-                header: 'Spent',
-                accessorKey: 'totalSpending',
+                header: 'Users',
+                accessorKey: '_count.users',
                 cell: (props) => {
-                    return <span>${props.row.original.totalSpending}</span>
+                    return <span>{props.row.original._count.users}</span>
+                },
+            },
+            {
+                header: 'Projects',
+                accessorKey: '_count.projects',
+                cell: (props) => {
+                    return <span>{props.row.original._count.projects}</span>
                 },
             },
             {
@@ -176,16 +185,16 @@ const CustomerListTable = ({
         })
     }
 
-    const handleRowSelect = (checked: boolean, row: Customer) => {
-        setSelectedCustomer(checked, row)
+    const handleRowSelect = (checked: boolean, row: Company) => {
+        setSelectedCompany(checked, row)
     }
 
-    const handleAllRowSelect = (checked: boolean, rows: Row<Customer>[]) => {
+    const handleAllRowSelect = (checked: boolean, rows: Row<Company>[]) => {
         if (checked) {
             const originalRows = rows.map((row) => row.original)
-            setSelectAllCustomer(originalRows)
+            setSelectAllCompany(originalRows)
         } else {
-            setSelectAllCustomer([])
+            setSelectAllCompany([])
         }
     }
 
@@ -193,18 +202,18 @@ const CustomerListTable = ({
         <DataTable
             selectable
             columns={columns}
-            data={customerList}
-            noData={customerList.length === 0}
+            data={companyList}
+            noData={companyList.length === 0}
             skeletonAvatarColumns={[0]}
             skeletonAvatarProps={{ width: 28, height: 28 }}
             loading={isInitialLoading}
             pagingData={{
-                total: customerListTotal,
+                total: companyListTotal,
                 pageIndex,
                 pageSize,
             }}
             checkboxChecked={(row) =>
-                selectedCustomer.some((selected) => selected.id === row.id)
+                selectedCompany.some((selected) => selected.id === row.id)
             }
             onPaginationChange={handlePaginationChange}
             onSelectChange={handleSelectChange}
@@ -215,4 +224,4 @@ const CustomerListTable = ({
     )
 }
 
-export default CustomerListTable
+export default CompanyListTable

@@ -25,6 +25,16 @@ const navigationConfig: NavigationTree[] = [
         authority: [],
         subMenu: [],
     },
+    {
+        key: 'company',
+        path: '/company',
+        title: 'Company',
+        translateKey: 'nav.company',
+        icon: 'building',
+        type: NAV_ITEM_TYPE_ITEM,
+        authority: [],
+        subMenu: [],
+    },
 ]
 
 export default navigationConfig

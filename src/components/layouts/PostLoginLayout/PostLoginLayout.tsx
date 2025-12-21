@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import {
     LAYOUT_COLLAPSIBLE_SIDE,
     LAYOUT_STACKED_SIDE,
@@ -46,8 +48,16 @@ const Layout = ({ children, layoutType }: PostLoginLayoutProps) => {
 
 const PostLoginLayout = ({ children }: CommonProps) => {
     const layoutType = useTheme((state) => state.layout.type)
-
     const pathname = usePathname()
+    const { data: session } = useSession()
+
+    // Store access token in localStorage for client-side API calls
+    useEffect(() => {
+        if (session?.user?.accessToken) {
+            localStorage.setItem('accessToken', session.user.accessToken)
+            console.log('✅ Access token stored in localStorage')
+        }
+    }, [session])
 
     const route = queryRoute(pathname)
 

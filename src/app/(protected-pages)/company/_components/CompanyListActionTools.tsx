@@ -1,26 +1,26 @@
 'use client'
 
 import Button from '@/components/ui/Button'
-import { TbCloudDownload, TbUserPlus } from 'react-icons/tb'
+import { TbCloudDownload, TbBuildingSkyscraper } from 'react-icons/tb'
 import { useRouter } from 'next/navigation'
-import { useCustomerListStore } from '../_store/customerListStore'
+import { useCompanyListStore } from '../_store/companyListStore'
 import dynamic from 'next/dynamic'
 
 const CSVLink = dynamic(() => import('react-csv').then((mod) => mod.CSVLink), {
     ssr: false,
 })
 
-const CustomerListActionTools = () => {
+const CompanyListActionTools = () => {
     const router = useRouter()
 
-    const customerList = useCustomerListStore((state) => state.customerList)
+    const companyList = useCompanyListStore((state) => state.companyList)
 
     return (
         <div className="flex flex-col md:flex-row gap-3">
             <CSVLink
                 className="w-full"
-                filename="customerList.csv"
-                data={customerList}
+                filename="companyList.csv"
+                data={companyList}
             >
                 <Button
                     icon={<TbCloudDownload className="text-xl" />}
@@ -31,9 +31,9 @@ const CustomerListActionTools = () => {
             </CSVLink>
             <Button
                 variant="solid"
-                icon={<TbUserPlus className="text-xl" />}
+                icon={<TbBuildingSkyscraper className="text-xl" />}
                 onClick={() =>
-                    router.push('/users/create')
+                    router.push('/company/create')
                 }
             >
                 Add new
@@ -42,4 +42,4 @@ const CustomerListActionTools = () => {
     )
 }
 
-export default CustomerListActionTools
+export default CompanyListActionTools
