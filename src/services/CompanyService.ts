@@ -1,5 +1,5 @@
 import ApiService from './ApiService'
-import type { Company, CreateCompanyData, UpdateCompanyData } from '@/app/(protected-pages)/company/types'
+import type { Company, CompanyDetail, CreateCompanyData, UpdateCompanyData } from '@/app/(protected-pages)/company/types'
 
 /**
  * Company API Service
@@ -28,6 +28,16 @@ export async function getCompanies(params?: Record<string, string | number>) {
         url: '/superadmin/companies',
         method: 'get',
         params,
+    })
+}
+
+/**
+ * Get company detail by ID
+ */
+export async function getCompanyById(id: string) {
+    return ApiService.fetchDataWithAxios<CompanyDetail>({
+        url: `/superadmin/companies/${id}`,
+        method: 'get',
     })
 }
 
@@ -81,7 +91,7 @@ export async function createCompany(data: CreateCompanyData): Promise<{
 }
 
 /**
- * Update company with optional logo upload
+ * Update company with optional logo upload (PATCH - partial update)
  */
 export async function updateCompany(
     id: string,
@@ -95,13 +105,13 @@ export async function updateCompany(
         // Create FormData for file upload
         const formData = new FormData()
         
-        // Add text fields
-        if (data.name) formData.append('name', data.name)
-        if (data.email) formData.append('email', data.email)
-        if (data.phone) formData.append('phone', data.phone)
-        if (data.address) formData.append('address', data.address)
-        if (data.website) formData.append('website', data.website)
-        if (data.status) formData.append('status', data.status)
+        // Add text fields only if they exist (partial update)
+        if (data.name !== undefined) formData.append('name', data.name)
+        if (data.email !== undefined) formData.append('email', data.email)
+        if (data.phone !== undefined) formData.append('phone', data.phone)
+        if (data.address !== undefined) formData.append('address', data.address)
+        if (data.website !== undefined) formData.append('website', data.website)
+        if (data.status !== undefined) formData.append('status', data.status)
         
         // Add logo file if exists
         if (data.logo instanceof File) {
@@ -110,7 +120,7 @@ export async function updateCompany(
 
         const response = await ApiService.fetchDataWithAxios<Company>({
             url: `/superadmin/companies/${id}`,
-            method: 'put',
+            method: 'patch',
             data: formData as unknown as Record<string, unknown>,
             headers: {
                 'Content-Type': 'multipart/form-data',
@@ -155,14 +165,4 @@ export async function deleteCompany(id: string): Promise<{
             message: err.response?.data?.message || 'Failed to delete company',
         }
     }
-}
-
-/**
- * Get company by ID
- */
-export async function getCompanyById(id: string) {
-    return ApiService.fetchDataWithAxios<CompanyResponse>({
-        url: `/superadmin/companies/${id}`,
-        method: 'get',
-    })
 }

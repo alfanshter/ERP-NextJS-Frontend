@@ -28,6 +28,27 @@ type CompanyCount = {
     users: number
     employees: number
     projects: number
+    procurements: number
+    invoices: number
+    expenses: number
+}
+
+type CompanyUser = {
+    id: string
+    email: string
+    firstName: string
+    lastName: string
+    role: {
+        id: string
+        name: string
+        description: string
+        permissions: string[]
+        isSystem: boolean
+        createdAt: string
+        updatedAt: string
+    }
+    isActive: boolean
+    createdAt: string
 }
 
 export type Company = {
@@ -44,6 +65,10 @@ export type Company = {
     updatedAt: string
     subscription: Subscription | null
     _count: CompanyCount
+}
+
+export type CompanyDetail = Company & {
+    users: CompanyUser[]
 }
 
 export type GetCompaniesListResponse = {

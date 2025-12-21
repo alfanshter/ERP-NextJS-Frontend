@@ -1,5 +1,9 @@
 import Container from '@/components/shared/Container'
-import AdaptiveCard from '@/components/shared/AdaptiveCard'
+import CompanyEdit from './_components/CompanyEdit'
+import NoDataFound from '@/assets/svg/NoDataFound'
+import getCompanyDetail from '@/server/actions/getCompanyDetail'
+import isEmpty from 'lodash/isEmpty'
+import type { CompanyDetail } from '../../types'
 
 type PageProps = {
     params: Promise<{ id: string }>
@@ -7,15 +11,18 @@ type PageProps = {
 
 export default async function EditCompanyPage({ params }: PageProps) {
     const { id } = await params
+    const data = await getCompanyDetail({ id })
 
-    return (
-        <Container>
-            <AdaptiveCard>
-                <div className="flex flex-col gap-4">
-                    <h3>Edit Company - {id}</h3>
-                    <p>Company edit form will be implemented here.</p>
+    if (isEmpty(data)) {
+        return (
+            <Container>
+                <div className="h-full flex flex-col items-center justify-center py-20">
+                    <NoDataFound height={280} width={280} />
+                    <h2 className="mt-4">Company not found!</h2>
                 </div>
-            </AdaptiveCard>
-        </Container>
-    )
+            </Container>
+        )
+    }
+
+    return <CompanyEdit data={data as CompanyDetail} />
 }
