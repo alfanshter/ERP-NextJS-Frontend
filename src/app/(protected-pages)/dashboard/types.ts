@@ -2,6 +2,71 @@ export type Period = 'thisMonth' | 'thisWeek' | 'thisYear'
 
 export type StatisticCategory = 'totalProfit' | 'totalOrder' | 'totalImpression'
 
+// Dashboard Overview Types for Superadmin
+export type DashboardStats = {
+    totalCompanies: number
+    activeCompanies: number
+    totalUsers: number
+    totalPlans: number
+    activeSubscriptions: number
+}
+
+export type CompanyStatus = 'ACTIVE' | 'TRIAL' | 'INACTIVE' | 'SUSPENDED'
+
+export type RecentCompany = {
+    id: string
+    name: string
+    email: string
+    phone: string
+    address: string
+    logo: string | null
+    website: string | null
+    status: CompanyStatus
+    subscriptionId: string | null
+    createdAt: string
+    updatedAt: string
+    subscription: {
+        id: string
+        planId: string
+        status: string
+        startDate: string
+        endDate: string
+        trialEndDate: string | null
+        autoRenew: boolean
+        createdAt: string
+        updatedAt: string
+        plan: {
+            id: string
+            name: string
+            description: string
+            price: number
+            billingPeriod: string
+            features: string[]
+            maxUsers: number
+            maxProjects: number
+            maxStorage: number
+            isActive: boolean
+            createdAt: string
+            updatedAt: string
+        }
+    } | null
+    _count: {
+        users: number
+    }
+}
+
+export type DashboardRevenue = {
+    monthlyRevenue: number
+    yearlyRevenue: number
+    activeSubscriptions: number
+}
+
+export type DashboardOverview = {
+    stats: DashboardStats
+    recentCompanies: RecentCompany[]
+    revenue: DashboardRevenue
+}
+
 export type ChannelRevenue = Record<
     Period,
     {

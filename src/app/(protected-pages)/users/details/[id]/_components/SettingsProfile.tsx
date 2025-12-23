@@ -223,16 +223,31 @@ const SettingsProfile = () => {
                 <Notification title="Success" type="success">
                     Profile updated successfully!
                 </Notification>,
-                { placement: 'top-center' }
+                { placement: 'top-end' }
             )
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Error updating profile:', error)
-            toast.push(
-                <Notification title="Error" type="danger">
-                    Failed to update profile. Please try again.
-                </Notification>,
-                { placement: 'top-center' }
-            )
+            
+            // Check if error is 409 (email already registered)
+            const err = error as { response?: { data?: { message?: string }; status?: number }; message?: string }
+            const errorMessage = err?.response?.data?.message || err?.message
+            const statusCode = err?.response?.status
+            
+            if (statusCode === 409 || errorMessage?.includes('Email already registered')) {
+                toast.push(
+                    <Notification title="Email Already Registered" type="warning">
+                        This email is already registered. Please use a different email address.
+                    </Notification>,
+                    { placement: 'top-end' }
+                )
+            } else {
+                toast.push(
+                    <Notification title="Error" type="danger">
+                        Failed to update profile. Please try again.
+                    </Notification>,
+                    { placement: 'top-end' }
+                )
+            }
         }
     }
 

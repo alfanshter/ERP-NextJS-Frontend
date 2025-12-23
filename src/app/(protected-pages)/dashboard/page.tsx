@@ -1,29 +1,25 @@
-import Overview from './_components/Overview'
-import CustomerDemographic from './_components/CustomerDemographic'
-import RecentOrder from './_components/RecentOrder'
-import SalesTarget from './_components/SalesTarget'
-import TopProduct from './_components/TopProduct'
-import RevenueByChannel from './_components/RevenueByChannel'
-import getEcommerceDashboard from '@/server/actions/getEcommerceDashboard'
+import SuperadminStats from './_components/SuperadminStats'
+import SuperadminRevenue from './_components/SuperadminRevenue'
+import RecentCompanies from './_components/RecentCompanies'
+import { getSuperadminDashboard } from '@/server/actions/getSuperadminDashboard'
 
 export default async function Page() {
-    const data = await getEcommerceDashboard()
+    const data = await getSuperadminDashboard()
+    
+    if (!data) {
+        return (
+            <div className="flex items-center justify-center h-96">
+                <p className="text-gray-500">Failed to load dashboard data</p>
+            </div>
+        )
+    }
+
     return (
         <div>
             <div className="flex flex-col gap-4 max-w-full overflow-x-hidden">
-                <div className="flex flex-col xl:flex-row gap-4">
-                    <div className="flex flex-col gap-4 flex-1 xl:col-span-3">
-                        <Overview data={data.statisticData} />
-                        <CustomerDemographic data={data.customerDemographic} />
-                    </div>
-                    <div className="flex flex-col gap-4 2xl:min-w-[360px]">
-                        <SalesTarget data={data.salesTarget} />
-                        <TopProduct data={data.topProduct} />
-                        <RevenueByChannel data={data.revenueByChannel} />
-                    </div>
-                </div>
-
-                <RecentOrder data={data.recentOrders} />
+                <SuperadminStats stats={data.stats} />
+                <SuperadminRevenue revenue={data.revenue} />
+                <RecentCompanies data={data.recentCompanies} />
             </div>
         </div>
     )

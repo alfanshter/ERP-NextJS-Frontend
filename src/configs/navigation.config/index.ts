@@ -1,6 +1,7 @@
 import {
     NAV_ITEM_TYPE_ITEM,
 } from '@/constants/navigation.constant'
+import { SUPERADMIN_MASTER, SUPERADMIN_STAFF } from '@/constants/roles.constant'
 
 import type { NavigationTree } from '@/@types/navigation'
 
@@ -12,7 +13,7 @@ const navigationConfig: NavigationTree[] = [
         translateKey: 'nav.dashboard',
         icon: 'dashboard',
         type: NAV_ITEM_TYPE_ITEM,
-        authority: [],
+        authority: [SUPERADMIN_MASTER, SUPERADMIN_STAFF],
         subMenu: [],
     },
     {
@@ -22,7 +23,7 @@ const navigationConfig: NavigationTree[] = [
         translateKey: 'nav.users',
         icon: 'users',
         type: NAV_ITEM_TYPE_ITEM,
-        authority: [],
+        authority: [SUPERADMIN_MASTER],
         subMenu: [],
     },
     {
@@ -32,7 +33,7 @@ const navigationConfig: NavigationTree[] = [
         translateKey: 'nav.company',
         icon: 'building',
         type: NAV_ITEM_TYPE_ITEM,
-        authority: [],
+        authority: [SUPERADMIN_MASTER, SUPERADMIN_STAFF],
         subMenu: [],
     },
     {
@@ -42,7 +43,7 @@ const navigationConfig: NavigationTree[] = [
         translateKey: 'nav.pricingPlans',
         icon: 'creditCard',
         type: NAV_ITEM_TYPE_ITEM,
-        authority: [],
+        authority: [SUPERADMIN_MASTER, SUPERADMIN_STAFF],
         subMenu: [],
     },
 ]

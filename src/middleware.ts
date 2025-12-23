@@ -4,7 +4,7 @@ import authConfig from '@/configs/auth.config'
 import {
     authRoutes as _authRoutes,
     publicRoutes as _publicRoutes,
-    // protectedRoutes
+    protectedRoutes
 } from '@/configs/routes.config'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import appConfig from '@/configs/app.config'
@@ -52,17 +52,34 @@ export default auth((req) => {
         )
     }
 
-    /** Uncomment this and `import { protectedRoutes } from '@/configs/routes.config'` if you want to enable role based access */
-    // if (isSignedIn && nextUrl.pathname !== '/access-denied' && !nextUrl.pathname.startsWith(appConfig.apiPrefix)) {
-    //     const routeMeta = protectedRoutes[nextUrl.pathname]
-    //     const existingRoute = routeMeta
-    //     const includedRole = routeMeta?.authority.some((role) => req.auth?.user?.authority.includes(role))
-    //     if (existingRoute && !includedRole) {
-    //         return Response.redirect(
-    //             new URL('/access-denied', nextUrl),
-    //         )
-    //     }
-    // }
+    /** Role based access control */
+    if (isSignedIn && nextUrl.pathname !== '/access-denied' && !nextUrl.pathname.startsWith(appConfig.apiPrefix)) {
+        // Check for exact match first, then check for parent route
+        let routeMeta = protectedRoutes[nextUrl.pathname]
+        
+        // If no exact match, check parent routes (e.g., /users/create -> /users)
+        if (!routeMeta) {
+            const pathSegments = nextUrl.pathname.split('/').filter(Boolean)
+            for (let i = pathSegments.length; i > 0; i--) {
+                const parentPath = '/' + pathSegments.slice(0, i).join('/')
+                if (protectedRoutes[parentPath]) {
+                    routeMeta = protectedRoutes[parentPath]
+                    break
+                }
+            }
+        }
+        
+        const existingRoute = routeMeta
+        const userAuthority = req.auth?.user?.authority || []
+        const includedRole = routeMeta?.authority.some((role) => userAuthority.includes(role))
+        
+        // If route has authority restrictions and user doesn't have required role
+        if (existingRoute && routeMeta.authority.length > 0 && !includedRole) {
+            return Response.redirect(
+                new URL('/access-denied', nextUrl),
+            )
+        }
+    }
 })
 
 export const config = {

@@ -27,7 +27,7 @@ const CustomerEdit = () => {
             const formData = new FormData()
             
             formData.append('email', values.email)
-            formData.append('password', 'DefaultPassword123!') // Default password
+            // Tidak kirim password, biar backend set default "admin123"
             formData.append('firstName', values.firstName)
             formData.append('lastName', values.lastName)
             formData.append('phone', `${values.dialCode}${values.phoneNumber}`)
@@ -49,20 +49,35 @@ const CustomerEdit = () => {
             setIsSubmiting(false)
             toast.push(
                 <Notification type="success" title="Success">
-                    Staff created successfully!
+                    Staff created successfully! Default password: <strong>admin123</strong>
                 </Notification>,
-                { placement: 'top-center' },
+                { placement: 'top-end' },
             )
             router.push('/users')
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Error creating staff:', error)
             setIsSubmiting(false)
-            toast.push(
-                <Notification type="danger" title="Error">
-                    Failed to create staff. Please try again.
-                </Notification>,
-                { placement: 'top-center' },
-            )
+            
+            // Check if error is 409 (email already registered)
+            const err = error as { response?: { data?: { message?: string }; status?: number }; message?: string }
+            const errorMessage = err?.response?.data?.message || err?.message
+            const statusCode = err?.response?.status
+            
+            if (statusCode === 409 || errorMessage?.includes('Email already registered')) {
+                toast.push(
+                    <Notification type="warning" title="Email Already Registered">
+                        This email is already registered. Please use a different email address.
+                    </Notification>,
+                    { placement: 'top-end' },
+                )
+            } else {
+                toast.push(
+                    <Notification type="danger" title="Error">
+                        Failed to create staff. Please try again.
+                    </Notification>,
+                    { placement: 'top-end' },
+                )
+            }
         }
     }
 
@@ -70,7 +85,7 @@ const CustomerEdit = () => {
         setDiscardConfirmationOpen(false)
         toast.push(
             <Notification type="success">Staff discarded!</Notification>,
-            { placement: 'top-center' },
+            { placement: 'top-end' },
         )
         router.push('/users')
     }
