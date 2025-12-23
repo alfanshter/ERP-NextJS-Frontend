@@ -8,6 +8,7 @@ import {
     PiUsersDuotone,
     PiBuildingOfficeDuotone,
     PiChartLineUpDuotone,
+    PiCreditCardDuotone,
 } from 'react-icons/pi'
 import type { JSX } from 'react'
 
@@ -18,6 +19,7 @@ const navigationIcon: NavigationIcons = {
     home: <PiHouseLineDuotone />,
     users: <PiUsersDuotone />,
     building: <PiBuildingOfficeDuotone />,
+    creditCard: <PiCreditCardDuotone />,
     singleMenu: <PiAcornDuotone />,
     collapseMenu: <PiArrowsInDuotone />,
     groupSingleMenu: <PiBookOpenUserDuotone />,

@@ -35,6 +35,16 @@ const navigationConfig: NavigationTree[] = [
         authority: [],
         subMenu: [],
     },
+    {
+        key: 'pricing-plans',
+        path: '/pricing-plans',
+        title: 'Pricing Plans',
+        translateKey: 'nav.pricingPlans',
+        icon: 'creditCard',
+        type: NAV_ITEM_TYPE_ITEM,
+        authority: [],
+        subMenu: [],
+    },
 ]
 
 export default navigationConfig
