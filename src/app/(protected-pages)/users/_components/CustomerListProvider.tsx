@@ -2,11 +2,11 @@
 
 import { useEffect } from 'react'
 import { useCustomerListStore } from '../_store/customerListStore'
-import type { Customer } from '../types'
+import type { Staff } from '../types'
 import type { CommonProps } from '@/@types/common'
 
 interface CustomerListProviderProps extends CommonProps {
-    customerList: Customer[]
+    customerList: Staff[]
 }
 
 const CustomerListProvider = ({

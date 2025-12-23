@@ -1,3 +1,43 @@
+type Role = {
+    id: string
+    name: string
+    description: string
+}
+
+export type Staff = {
+    id: string
+    email: string
+    firstName: string
+    lastName: string
+    phone: string | null
+    avatar: string | null
+    country: string | null
+    address: string | null
+    city: string | null
+    postalCode: string | null
+    isActive: boolean
+    role: Role
+    lastLoginAt: string | null
+    createdAt: string
+    updatedAt: string
+}
+
+export type GetStaffListResponse = {
+    data: Staff[]
+    meta: {
+        total: number
+        page: number
+        limit: number
+        totalPages: number
+    }
+}
+
+export type StaffFilter = {
+    role: string
+    status: string
+}
+
+// Legacy types (keep for backward compatibility if needed)
 type PersonalInfo = {
     location: string
     title: string
@@ -44,7 +84,7 @@ export type GetCustomersListResponse = {
     total: number
 }
 
-export type Filter = {
+export type CustomerFilter = {
     purchasedProducts: string
     purchaseChannel: Array<string>
 }

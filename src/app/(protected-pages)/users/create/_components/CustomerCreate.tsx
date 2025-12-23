@@ -6,7 +6,7 @@ import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import CustomerForm from '@/components/view/CustomerForm'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import sleep from '@/utils/sleep'
+import { apiCreateStaff } from '@/services/CustomersService'
 import { TbTrash } from 'react-icons/tb'
 import { useRouter } from 'next/navigation'
 import type { CustomerFormSchema } from '@/components/view/CustomerForm'
@@ -21,19 +21,55 @@ const CustomerEdit = () => {
     const handleFormSubmit = async (values: CustomerFormSchema) => {
         console.log('Submitted values', values)
         setIsSubmiting(true)
-        await sleep(800)
-        setIsSubmiting(false)
-        toast.push(
-            <Notification type="success">Customer created!</Notification>,
-            { placement: 'top-center' },
-        )
-        router.push('/users')
+        
+        try {
+            // Buat FormData untuk upload avatar
+            const formData = new FormData()
+            
+            formData.append('email', values.email)
+            formData.append('password', 'DefaultPassword123!') // Default password
+            formData.append('firstName', values.firstName)
+            formData.append('lastName', values.lastName)
+            formData.append('phone', `${values.dialCode}${values.phoneNumber}`)
+            formData.append('country', values.country)
+            formData.append('address', values.address)
+            formData.append('city', values.city)
+            formData.append('postalCode', values.postcode)
+            
+            // Jika ada avatar/img, convert dari URL ke File
+            if (values.img && values.img.startsWith('blob:')) {
+                const response = await fetch(values.img)
+                const blob = await response.blob()
+                const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' })
+                formData.append('avatar', file)
+            }
+
+            await apiCreateStaff(formData)
+            
+            setIsSubmiting(false)
+            toast.push(
+                <Notification type="success" title="Success">
+                    Staff created successfully!
+                </Notification>,
+                { placement: 'top-center' },
+            )
+            router.push('/users')
+        } catch (error) {
+            console.error('Error creating staff:', error)
+            setIsSubmiting(false)
+            toast.push(
+                <Notification type="danger" title="Error">
+                    Failed to create staff. Please try again.
+                </Notification>,
+                { placement: 'top-center' },
+            )
+        }
     }
 
     const handleConfirmDiscard = () => {
-        setDiscardConfirmationOpen(true)
+        setDiscardConfirmationOpen(false)
         toast.push(
-            <Notification type="success">Customer discardd!</Notification>,
+            <Notification type="success">Staff discarded!</Notification>,
             { placement: 'top-center' },
         )
         router.push('/users')

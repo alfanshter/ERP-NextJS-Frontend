@@ -14,15 +14,15 @@ type SubscriptionSectionProps = {
 const getStatusColor = (status: string) => {
     switch (status) {
         case 'ACTIVE':
-            return 'bg-emerald-500'
+            return 'bg-emerald-200 dark:bg-emerald-200 text-gray-900 dark:text-gray-900'
         case 'TRIAL':
-            return 'bg-blue-500'
+            return 'bg-blue-200 dark:bg-blue-200 text-gray-900 dark:text-gray-900'
         case 'EXPIRED':
-            return 'bg-red-500'
+            return 'bg-red-200 dark:bg-red-200 text-gray-900 dark:text-gray-900'
         case 'CANCELLED':
-            return 'bg-gray-500'
+            return 'bg-gray-200 dark:bg-gray-200 text-gray-900 dark:text-gray-900'
         default:
-            return 'bg-gray-500'
+            return 'bg-gray-200 dark:bg-gray-200 text-gray-900 dark:text-gray-900'
     }
 }
 

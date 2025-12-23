@@ -1,28 +1,8 @@
-type PersonalInfo = {
-    location: string
-    title: string
-    birthday: string
-    phoneNumber: string
-    dialCode: string
-    address: string
-    postcode: string
-    city: string
-    country: string
-    facebook: string
-    twitter: string
-    pinterest: string
-    linkedIn: string
-}
+export type View =
+    | 'profile'
+    | 'security'
 
-type OrderHistory = {
-    id: string
-    item: string
-    status: string
-    amount: number
-    date: number
-}
-
-type PaymentMethod = {
+export type CreditCard = {
     cardHolderName: string
     cardType: string
     expMonth: string
@@ -31,27 +11,58 @@ type PaymentMethod = {
     primary: boolean
 }
 
-type Subscription = {
-    plan: string
-    status: string
-    billing: string
-    nextPaymentDate: number
-    amount: number
+export type CreditCardInfo = { cardId: string } & CreditCard
+
+export type Integration = {
+    id: string
+    name: string
+    desc: string
+    img: string
+    type: string
+    active: boolean
+    installed?: boolean
 }
 
-export type Customer = {
+export type GetSettingsProfileResponse = {
     id: string
     name: string
     firstName: string
     lastName: string
     email: string
     img: string
-    role: string
-    lastOnline: number
-    status: string
-    personalInfo: PersonalInfo
-    orderHistory: OrderHistory[]
-    paymentMethod: PaymentMethod[]
-    subscription: Subscription[]
-    totalSpending: number
+    location: string
+    address: string
+    postcode: string
+    city: string
+    country: string
+    dialCode: string
+    birthday: string
+    phoneNumber: string
 }
+
+export type GetSettingsNotificationResponse = {
+    email: string[]
+    desktop: boolean
+    unreadMessageBadge: boolean
+    notifymeAbout: string
+}
+
+export type GetSettingsBillingResponse = {
+    paymentMethods: Array<CreditCardInfo>
+    transactionHistory: Array<{
+        id: string
+        item: string
+        status: string
+        amount: number
+        date: number
+    }>
+    currentPlan: {
+        plan: string
+        status: string
+        billingCycle: string
+        nextPaymentDate: number
+        amount: number
+    }
+}
+
+export type GetSettingsIntegrationResponse = Integration[]

@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
-import Checkbox from '@/components/ui/Checkbox'
 import Input from '@/components/ui/Input'
+import Select from '@/components/ui/Select'
 import { Form, FormItem } from '@/components/ui/Form'
 import { useCustomerListStore } from '../_store/customerListStore'
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
@@ -14,21 +14,19 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
 type FormSchema = {
-    purchasedProducts: string
-    purchaseChannel: Array<string>
+    role: string
+    status: string
 }
 
-const channelList = [
-    'Retail Stores',
-    'Online Retailers',
-    'Resellers',
-    'Mobile Apps',
-    'Direct Sales',
+const statusOptions = [
+    { value: '', label: 'All Status' },
+    { value: 'true', label: 'Active' },
+    { value: 'false', label: 'Inactive' },
 ]
 
 const validationSchema = z.object({
-    purchasedProducts: z.string(),
-    purchaseChannel: z.array(z.string()),
+    role: z.string(),
+    status: z.string(),
 })
 
 const CustomerListTableFilter = () => {
@@ -54,8 +52,8 @@ const CustomerListTableFilter = () => {
 
     const onSubmit = (values: FormSchema) => {
         onAppendQueryParams({
-            purchasedProducts: values.purchasedProducts,
-            purchaseChannel: values.purchaseChannel.join(','),
+            role: values.role,
+            status: values.status,
         })
 
         setFilterData(values)
@@ -74,41 +72,35 @@ const CustomerListTableFilter = () => {
             >
                 <h4 className="mb-4">Filter</h4>
                 <Form onSubmit={handleSubmit(onSubmit)}>
-                    <FormItem label="Products">
+                    <FormItem label="Role">
                         <Controller
-                            name="purchasedProducts"
+                            name="role"
                             control={control}
                             render={({ field }) => (
                                 <Input
                                     type="text"
                                     autoComplete="off"
-                                    placeholder="Search by purchased product"
+                                    placeholder="Search by role"
                                     {...field}
                                 />
                             )}
                         />
                     </FormItem>
-                    <FormItem label="Purchase Channel">
+                    <FormItem label="Status">
                         <Controller
-                            name="purchaseChannel"
+                            name="status"
                             control={control}
                             render={({ field }) => (
-                                <Checkbox.Group
-                                    vertical
-                                    className="flex mt-4"
+                                <Select
+                                    options={statusOptions}
                                     {...field}
-                                >
-                                    {channelList.map((source, index) => (
-                                        <Checkbox
-                                            key={source + index}
-                                            name={field.name}
-                                            value={source}
-                                            className="justify-between flex-row-reverse heading-text"
-                                        >
-                                            {source}
-                                        </Checkbox>
-                                    ))}
-                                </Checkbox.Group>
+                                    value={statusOptions.find(
+                                        (option) => option.value === field.value,
+                                    )}
+                                    onChange={(option) =>
+                                        field.onChange(option?.value || '')
+                                    }
+                                />
                             )}
                         />
                     </FormItem>

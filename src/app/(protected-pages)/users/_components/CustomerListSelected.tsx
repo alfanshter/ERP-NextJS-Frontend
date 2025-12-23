@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import StickyFooter from '@/components/shared/StickyFooter'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
@@ -11,13 +12,11 @@ import toast from '@/components/ui/toast'
 import RichTextEditor from '@/components/shared/RichTextEditor'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { useCustomerListStore } from '../_store/customerListStore'
+import { apiBulkDeleteStaff } from '@/services/CustomersService'
 import { TbChecks } from 'react-icons/tb'
 
 const CustomerListSelected = () => {
-    const customerList = useCustomerListStore((state) => state.customerList)
-    const setCustomerList = useCustomerListStore(
-        (state) => state.setCustomerList,
-    )
+    const router = useRouter()
     const selectedCustomer = useCustomerListStore(
         (state) => state.selectedCustomer,
     )
@@ -37,15 +36,33 @@ const CustomerListSelected = () => {
         setDeleteConfirmationOpen(false)
     }
 
-    const handleConfirmDelete = () => {
-        const newCustomerList = customerList.filter((customer) => {
-            return !selectedCustomer.some(
-                (selected) => selected.id === customer.id,
+    const handleConfirmDelete = async () => {
+        try {
+            const ids = selectedCustomer.map(customer => customer.id).filter((id): id is string => Boolean(id))
+            
+            await apiBulkDeleteStaff(ids)
+            
+            toast.push(
+                <Notification type="success">
+                    Successfully deleted {ids.length} staff member(s)!
+                </Notification>,
+                { placement: 'top-center' },
             )
-        })
-        setSelectAllCustomer([])
-        setCustomerList(newCustomerList)
-        setDeleteConfirmationOpen(false)
+            
+            setSelectAllCustomer([])
+            setDeleteConfirmationOpen(false)
+            
+            // Refresh page
+            router.refresh()
+        } catch (error) {
+            console.error('Error deleting staff:', error)
+            toast.push(
+                <Notification type="danger">
+                    Failed to delete staff. Please try again.
+                </Notification>,
+                { placement: 'top-center' },
+            )
+        }
     }
 
     const handleSend = () => {
@@ -117,16 +134,16 @@ const CustomerListSelected = () => {
             <ConfirmDialog
                 isOpen={deleteConfirmationOpen}
                 type="danger"
-                title="Remove customers"
+                title="Remove staff"
+                confirmText="Delete"
                 onClose={handleCancel}
                 onRequestClose={handleCancel}
                 onCancel={handleCancel}
                 onConfirm={handleConfirmDelete}
             >
                 <p>
-                    {' '}
-                    Are you sure you want to remove these customers? This action
-                    can&apos;t be undo.{' '}
+                    Are you sure you want to remove {selectedCustomer.length} staff member(s)? This action
+                    cannot be undone.
                 </p>
             </ConfirmDialog>
             <Dialog
@@ -135,7 +152,7 @@ const CustomerListSelected = () => {
                 onClose={() => setSendMessageDialogOpen(false)}
             >
                 <h5 className="mb-2">Send Message</h5>
-                <p>Send message to the following customers</p>
+                <p>Send message to the following staff</p>
                 <Avatar.Group
                     chained
                     omittedAvatarTooltip
@@ -143,11 +160,14 @@ const CustomerListSelected = () => {
                     maxCount={4}
                     omittedAvatarProps={{ size: 30 }}
                 >
-                    {selectedCustomer.map((customer) => (
-                        <Tooltip key={customer.id} title={customer.name}>
-                            <Avatar size={30} src={customer.img} alt="" />
-                        </Tooltip>
-                    ))}
+                    {selectedCustomer.map((customer) => {
+                        const fullName = `${customer.firstName} ${customer.lastName}`
+                        return (
+                            <Tooltip key={customer.id} title={fullName}>
+                                <Avatar size={30} src={customer.avatar || undefined} alt={fullName} />
+                            </Tooltip>
+                        )
+                    })}
                 </Avatar.Group>
                 <div className="my-4">
                     <RichTextEditor content={''} />

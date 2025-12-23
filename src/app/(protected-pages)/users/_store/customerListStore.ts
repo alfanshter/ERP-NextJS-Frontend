@@ -1,29 +1,23 @@
 import { create } from 'zustand'
-import type { Customer, Filter } from '../types'
+import type { Staff, StaffFilter } from '../types'
 
-export const initialFilterData = {
-    purchasedProducts: '',
-    purchaseChannel: [
-        'Retail Stores',
-        'Online Retailers',
-        'Resellers',
-        'Mobile Apps',
-        'Direct Sales',
-    ],
+export const initialFilterData: StaffFilter = {
+    role: '',
+    status: '',
 }
 
 export type CustomersListState = {
     initialLoading: boolean
-    customerList: Customer[]
-    filterData: Filter
-    selectedCustomer: Partial<Customer>[]
+    customerList: Staff[]
+    filterData: StaffFilter
+    selectedCustomer: Partial<Staff>[]
 }
 
 type CustomersListAction = {
-    setCustomerList: (customerList: Customer[]) => void
-    setFilterData: (payload: Filter) => void
-    setSelectedCustomer: (checked: boolean, customer: Customer) => void
-    setSelectAllCustomer: (customer: Customer[]) => void
+    setCustomerList: (customerList: Staff[]) => void
+    setFilterData: (payload: StaffFilter) => void
+    setSelectedCustomer: (checked: boolean, customer: Staff) => void
+    setSelectAllCustomer: (customer: Staff[]) => void
     setInitialLoading: (payload: boolean) => void
 }
 

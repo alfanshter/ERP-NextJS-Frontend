@@ -5,25 +5,29 @@ import CustomerListTable from './_components/CustomerListTable'
 import CustomerListActionTools from './_components/CustomerListActionTools'
 import CustomersListTableTools from './_components/CustomersListTableTools'
 import CustomerListSelected from './_components/CustomerListSelected'
-import getCustomers from '@/server/actions/getCustomers'
+import { getStaffList } from '@/server/actions/getStaffList'
 import type { PageProps } from '@/@types/common'
 
 export default async function Page({ searchParams }: PageProps) {
     const params = await searchParams
-    const data = await getCustomers(params)
+    const data = await getStaffList({
+        page: parseInt(params.pageIndex as string) || 1,
+        limit: parseInt(params.pageSize as string) || 10,
+        search: params.query as string,
+    })
 
     return (
-        <CustomerListProvider customerList={data.list}>
+        <CustomerListProvider customerList={data.data}>
             <Container>
                 <AdaptiveCard>
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                            <h3>Customers</h3>
+                            <h3>Staff</h3>
                             <CustomerListActionTools />
                         </div>
                         <CustomersListTableTools />
                         <CustomerListTable
-                            customerListTotal={data.total}
+                            customerListTotal={data.meta.total}
                             pageIndex={
                                 parseInt(params.pageIndex as string) || 1
                             }

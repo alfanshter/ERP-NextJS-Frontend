@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Card from '@/components/ui/Card'
 import Table from '@/components/ui/Table'
 import Badge from '@/components/ui/Badge'
@@ -7,6 +8,8 @@ import Avatar from '@/components/ui/Avatar'
 import Button from '@/components/ui/Button'
 import { TbPlus, TbUser } from 'react-icons/tb'
 import dayjs from 'dayjs'
+import AddUserDialog from './AddUserDialog'
+import { useRouter } from 'next/navigation'
 import type { CompanyDetail } from '../../../types'
 
 type UsersSectionProps = {
@@ -18,36 +21,72 @@ const { Tr, Th, Td, THead, TBody } = Table
 const getRoleBadgeColor = (roleName: string) => {
     switch (roleName.toLowerCase()) {
         case 'admin':
-            return 'bg-red-500'
+            return 'bg-red-200 dark:bg-red-200 text-gray-900 dark:text-gray-900'
         case 'manager':
-            return 'bg-blue-500'
+            return 'bg-blue-200 dark:bg-blue-200 text-gray-900 dark:text-gray-900'
         case 'staff':
-            return 'bg-gray-500'
+            return 'bg-gray-200 dark:bg-gray-200 text-gray-900 dark:text-gray-900'
         default:
-            return 'bg-gray-500'
+            return 'bg-gray-200 dark:bg-gray-200 text-gray-900 dark:text-gray-900'
     }
 }
 
+const getStatusBadgeColor = (isActive: boolean) => {
+    return isActive
+        ? 'bg-emerald-200 dark:bg-emerald-200 text-gray-900 dark:text-gray-900'
+        : 'bg-gray-200 dark:bg-gray-200 text-gray-900 dark:text-gray-900'
+}
+
 const UsersSection = ({ data }: UsersSectionProps) => {
+    const router = useRouter()
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+    const handleAddUser = () => {
+        setIsDialogOpen(true)
+    }
+
+    const handleDialogClose = () => {
+        setIsDialogOpen(false)
+    }
+
+    const handleSuccess = () => {
+        // Refresh page to show new user
+        router.refresh()
+    }
+
     if (!data.users || data.users.length === 0) {
         return (
-            <Card>
-                <div className="text-center py-8">
-                    <TbUser className="text-6xl mx-auto mb-4 text-gray-400" />
-                    <h5 className="mb-2">No Users Yet</h5>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
-                        This company doesn&apos;t have any users assigned yet.
-                    </p>
-                    <Button variant="solid" icon={<TbPlus />}>
-                        Add User
-                    </Button>
-                </div>
-            </Card>
+            <>
+                <Card>
+                    <div className="text-center py-8">
+                        <TbUser className="text-6xl mx-auto mb-4 text-gray-400" />
+                        <h5 className="mb-2">No Users Yet</h5>
+                        <p className="text-gray-600 dark:text-gray-400 mb-6">
+                            This company doesn&apos;t have any users assigned yet.
+                        </p>
+                        <Button
+                            variant="solid"
+                            icon={<TbPlus />}
+                            onClick={handleAddUser}
+                        >
+                            Add User
+                        </Button>
+                    </div>
+                </Card>
+                <AddUserDialog
+                    isOpen={isDialogOpen}
+                    onClose={handleDialogClose}
+                    companyId={data.id}
+                    companyName={data.name}
+                    onSuccess={handleSuccess}
+                />
+            </>
         )
     }
 
     return (
-        <Card>
+        <>
+            <Card>
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h5>Company Users</h5>
@@ -55,7 +94,7 @@ const UsersSection = ({ data }: UsersSectionProps) => {
                         Total {data._count.users} users
                     </p>
                 </div>
-                <Button variant="solid" icon={<TbPlus />}>
+                <Button variant="solid" icon={<TbPlus />} onClick={handleAddUser}>
                     Add User
                 </Button>
             </div>
@@ -102,11 +141,7 @@ const UsersSection = ({ data }: UsersSectionProps) => {
                             </Td>
                             <Td>
                                 <Badge
-                                    className={
-                                        user.isActive
-                                            ? 'bg-emerald-500'
-                                            : 'bg-gray-500'
-                                    }
+                                    className={getStatusBadgeColor(user.isActive)}
                                 >
                                     {user.isActive ? 'Active' : 'Inactive'}
                                 </Badge>
@@ -119,6 +154,14 @@ const UsersSection = ({ data }: UsersSectionProps) => {
                 </TBody>
             </Table>
         </Card>
+        <AddUserDialog
+            isOpen={isDialogOpen}
+            onClose={handleDialogClose}
+            companyId={data.id}
+            companyName={data.name}
+            onSuccess={handleSuccess}
+        />
+        </>
     )
 }
 
