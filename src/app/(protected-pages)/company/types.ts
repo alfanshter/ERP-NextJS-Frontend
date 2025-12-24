@@ -1,33 +1,48 @@
-type Subscription = {
+export type SubscriptionPlan = {
     id: string
-    planId: string
-    status: string
-    startDate: string
-    endDate: string
-    trialEndDate: string | null
-    autoRenew: boolean
-    billingCycle: 'MONTHLY' | 'YEARLY'
+    name: string
+    description: string
+    monthlyPrice: number
+    yearlyPrice: number
+    monthlyDiscount: number
+    yearlyDiscount: number
+    discountType: 'PERCENTAGE' | 'FIXED'
+    features: string[]
+    maxUsers: number | null
+    maxProjects: number | null
+    maxStorage: number | null
+    isActive: boolean
     createdAt: string
     updatedAt: string
-    plan: {
+}
+
+export type Subscription = {
+    id: string
+    planId: string
+    billingPeriod: 'MONTHLY' | 'YEARLY'
+    price: number
+    status: string
+    startDate: string
+    endDate: string | null
+    trialEndDate: string | null
+    autoRenew: boolean
+    lastPaymentAt: string | null
+    nextBillingAt: string | null
+    createdAt: string
+    updatedAt: string
+    plan: SubscriptionPlan
+}
+
+export type CompanySubscriptionResponse = {
+    company: {
         id: string
         name: string
-        description: string
-        monthlyPrice: number
-        yearlyPrice: number
-        finalMonthlyPrice: number
-        finalYearlyPrice: number
-        monthlyDiscount: number
-        yearlyDiscount: number
-        discountType: 'PERCENTAGE' | 'FIXED'
-        features: string[]
-        maxUsers: number | null
-        maxProjects: number | null
-        maxStorage: number | null
-        isActive: boolean
-        createdAt: string
-        updatedAt: string
+        email: string
+        phone: string
+        status: string
+        subscriptionId: string | null
     }
+    subscription: Subscription | null
 }
 
 type CompanyCount = {
@@ -87,7 +102,6 @@ export type Company = {
     subscriptionId: string | null
     createdAt: string
     updatedAt: string
-    subscription: Subscription | null
     _count: CompanyCount
 }
 

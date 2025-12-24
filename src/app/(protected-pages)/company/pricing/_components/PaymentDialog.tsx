@@ -4,55 +4,38 @@ import { useState } from 'react'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
 import Segment from '@/components/ui/Segment'
+import Switcher from '@/components/ui/Switcher'
+import Notification from '@/components/ui/Notification'
+import toast from '@/components/ui/toast'
 import classNames from '@/utils/classNames'
-import sleep from '@/utils/sleep'
 import { usePricingStore } from '../_store/pricingStore'
-import { TbCheck, TbCreditCard, TbMail } from 'react-icons/tb'
+import { createSubscription } from '@/services/CompanyService'
+import { TbCheck } from 'react-icons/tb'
 import { useRouter } from 'next/navigation'
-import {
-    NumericFormat,
-    PatternFormat,
-    NumberFormatBase,
-} from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 import { PaymentCycle } from '../types'
 
-function limit(val: string, max: string) {
-    if (val.length === 1 && val[0] > max[0]) {
-        val = '0' + val
-    }
-
-    if (val.length === 2) {
-        if (Number(val) === 0) {
-            val = '01'
-        } else if (val > max) {
-            val = max
-        }
-    }
-
-    return val
+type PaymentDialogProps = {
+    companyId?: string
 }
 
-function cardExpiryFormat(val: string) {
-    const month = limit(val.substring(0, 2), '12')
-    const date = limit(val.substring(2, 4), '31')
-
-    return month + (date.length ? '/' + date : '')
-}
-
-const PaymentDialog = () => {
+const PaymentDialog = ({ companyId }: PaymentDialogProps) => {
     const [loading, setLoading] = useState(false)
     const [paymentSuccessful, setPaymentSuccessful] = useState(false)
+    const [autoRenew, setAutoRenew] = useState(true)
 
     const router = useRouter()
 
-    const { paymentDialog, setPaymentDialog, selectedPlan, setSelectedPlan } =
+    const { paymentDialog, setPaymentDialog, selectedPlan, setSelectedPlan, companyId: storeCompanyId } =
         usePricingStore()
+    
+    const activeCompanyId = companyId || storeCompanyId
 
     const handleDialogClose = async () => {
         setPaymentDialog(false)
-        await sleep(200)
         setSelectedPlan({})
         setPaymentSuccessful(false)
+        setAutoRenew(true)
     }
 
     const handlePaymentChange = (paymentCycle: PaymentCycle) => {
@@ -63,14 +46,54 @@ const PaymentDialog = () => {
     }
 
     const handlePay = async () => {
+        if (!activeCompanyId || !selectedPlan.planId) {
+            toast.push(
+                <Notification type="danger" title="Error">
+                    Data tidak lengkap. Silakan pilih plan terlebih dahulu.
+                </Notification>,
+                { placement: 'top-center' }
+            )
+            return
+        }
+
         setLoading(true)
-        await sleep(500)
+
+        const billingPeriod = selectedPlan.paymentCycle === 'monthly' ? 'MONTHLY' : 'YEARLY'
+        
+        const result = await createSubscription({
+            planId: selectedPlan.planId,
+            companyId: activeCompanyId,
+            billingPeriod,
+            autoRenew,
+            startDate: new Date().toISOString(),
+        })
+
         setLoading(false)
-        setPaymentSuccessful(true)
+
+        if (result.success) {
+            setPaymentSuccessful(true)
+            toast.push(
+                <Notification type="success" title="Berhasil">
+                    Subscription berhasil dibuat!
+                </Notification>,
+                { placement: 'top-center' }
+            )
+        } else {
+            toast.push(
+                <Notification type="danger" title="Gagal">
+                    {result.message || 'Gagal membuat subscription'}
+                </Notification>,
+                { placement: 'top-center' }
+            )
+        }
     }
 
-    const handleManageSubscription = async () => {
-        router.push('/concepts/account/settings?view=billing')
+    const handleBackToCompany = async () => {
+        if (activeCompanyId) {
+            router.push(`/company/details/${activeCompanyId}`)
+        } else {
+            router.push('/company')
+        }
         await handleDialogClose()
     }
 
@@ -88,30 +111,28 @@ const PaymentDialog = () => {
                             <TbCheck className="text-5xl text-white" />
                         </div>
                         <div className="mt-6">
-                            <h4>Thank you for your purchase!</h4>
+                            <h4>Subscription Berhasil!</h4>
                             <p className="text-base max-w-[400px] mx-auto mt-4 leading-relaxed">
-                                We&apos;ve received your order and are
-                                processing it now. You&apos;ll get an email with
-                                your order details soon
+                                Subscription telah berhasil dibuat. Company sekarang sudah memiliki akses ke paket yang dipilih.
                             </p>
                         </div>
                         <div className="grid grid-cols-2 gap-2 mt-8">
-                            <Button block onClick={handleManageSubscription}>
-                                Manage subscription
+                            <Button block onClick={handleBackToCompany}>
+                                Kembali ke Company
                             </Button>
                             <Button
                                 block
                                 variant="solid"
                                 onClick={handleDialogClose}
                             >
-                                Close
+                                Tutup
                             </Button>
                         </div>
                     </div>
                 </>
             ) : (
                 <>
-                    <h4>{selectedPlan.planName} plan</h4>
+                    <h4>{selectedPlan.planName}</h4>
                     <div className="mt-6">
                         <Segment
                             defaultValue={selectedPlan.paymentCycle}
@@ -120,7 +141,7 @@ const PaymentDialog = () => {
                                 handlePaymentChange(value as PaymentCycle)
                             }
                         >
-                            {Object.entries(selectedPlan.price || {}).map(
+                            {Object.entries(selectedPlan.finalPrice || {}).map(
                                 ([key, value]) => (
                                     <Segment.Item key={key} value={key}>
                                         {({ active, onSegmentItemClick }) => {
@@ -137,10 +158,10 @@ const PaymentDialog = () => {
                                                 >
                                                     <div>
                                                         <div className="heading-text mb-0.5">
-                                                            Pay{' '}
+                                                            Bayar{' '}
                                                             {key === 'monthly'
-                                                                ? 'monthly'
-                                                                : 'anually'}
+                                                                ? 'Bulanan'
+                                                                : 'Tahunan'}
                                                         </div>
                                                         <span className="text-lg font-bold heading-text flex gap-0.5">
                                                             <NumericFormat
@@ -170,44 +191,18 @@ const PaymentDialog = () => {
                             )}
                         </Segment>
                     </div>
-                    <div className="mt-6 border border-gray-200 dark:border-gray-600 rounded-lg">
-                        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600">
-                            <div className="w-full">
-                                <span>Billing email</span>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <TbMail className="text-2xl" />
-                                    <input
-                                        className="focus:outline-hidden heading-text flex-1"
-                                        placeholder="Enter email"
-                                        type="email"
-                                    />
-                                </div>
+                    <div className="mt-6 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <span className="font-semibold">Auto Renew</span>
+                                <p className="text-sm text-gray-500">
+                                    Perpanjang subscription otomatis saat masa berlaku habis
+                                </p>
                             </div>
-                        </div>
-                        <div className="flex items-center justify-between p-4">
-                            <div className="w-full">
-                                <span>Credit card</span>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <div className="flex-1">
-                                        <TbCreditCard className="text-2xl" />
-                                    </div>
-                                    <PatternFormat
-                                        className="focus:outline-hidden heading-text w-full"
-                                        placeholder="Credit card number"
-                                        format="#### #### #### ####"
-                                    />
-                                    <NumberFormatBase
-                                        className="focus:outline-hidden heading-text max-w-12 sm:max-w-28"
-                                        placeholder="MM/YY"
-                                        format={cardExpiryFormat}
-                                    />
-                                    <PatternFormat
-                                        className="focus:outline-hidden heading-text max-w-12 sm:max-w-28"
-                                        placeholder="CVC"
-                                        format="###"
-                                    />
-                                </div>
-                            </div>
+                            <Switcher
+                                checked={autoRenew}
+                                onChange={(checked) => setAutoRenew(checked)}
+                            />
                         </div>
                     </div>
                     <div className="mt-6 flex flex-col items-end">
@@ -229,9 +224,7 @@ const PaymentDialog = () => {
                         </h4>
                         <div className="max-w-[350px] ltr:text-right rtl:text-left leading-none mt-2 opacity-80">
                             <small>
-                                By clicking &quot;Pay&quot;, you agree to be
-                                charged $399 every month, you can cancel this
-                                subscription any time.
+                                Dengan menekan &quot;Konfirmasi&quot;, subscription akan langsung aktif untuk company ini.
                             </small>
                         </div>
                     </div>
@@ -241,8 +234,9 @@ const PaymentDialog = () => {
                             variant="solid"
                             loading={loading}
                             onClick={handlePay}
+                            disabled={!activeCompanyId}
                         >
-                            Pay
+                            {activeCompanyId ? 'Konfirmasi Subscription' : 'Company ID tidak ditemukan'}
                         </Button>
                     </div>
                 </>

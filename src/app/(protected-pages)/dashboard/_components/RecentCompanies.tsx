@@ -42,16 +42,13 @@ const SubscriptionColumn = ({ row }: { row: RecentCompany }) => {
         return <span className="text-gray-400">No subscription</span>
     }
 
-    const isMonthly = row.subscription.billingCycle === 'MONTHLY'
-    const price = isMonthly 
-        ? row.subscription.plan.finalMonthlyPrice 
-        : row.subscription.plan.finalYearlyPrice
+    const isMonthly = row.subscription.billingPeriod === 'MONTHLY'
 
     return (
         <div>
             <div className="font-semibold">{row.subscription.plan.name}</div>
             <div className="text-sm text-emerald-600">
-                Rp {price?.toLocaleString('id-ID') || '0'} / {isMonthly ? 'bulan' : 'tahun'}
+                Rp {row.subscription.price?.toLocaleString('id-ID') || '0'} / {isMonthly ? 'bulan' : 'tahun'}
             </div>
         </div>
     )

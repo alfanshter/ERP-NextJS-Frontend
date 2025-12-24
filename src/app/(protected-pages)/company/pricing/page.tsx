@@ -3,12 +3,14 @@ import Plans from './_components/Plans'
 import PaymentCycleToggle from './_components/PaymentCycleToggle'
 import Faq from './_components/Faq'
 import PaymentDialog from './_components/PaymentDialog'
+import CompanyIdSetter from './_components/CompanyIdSetter'
 import { getPricingPlans } from '@/server/actions/getPricingPlans'
 import type { PageProps } from '@/@types/common'
 import type { GetPricingPanResponse } from './types'
 
 export default async function Page({ searchParams }: PageProps) {
     const params = await searchParams
+    const companyId = params.companyId as string
     const backendPlans = await getPricingPlans()
 
     // Transform backend data to template format
@@ -41,6 +43,7 @@ export default async function Page({ searchParams }: PageProps) {
 
     return (
         <>
+            <CompanyIdSetter companyId={companyId} />
             <Card className="mb-4">
                 <div className="flex items-center justify-between mb-8">
                     <h3>Pricing</h3>
@@ -53,7 +56,7 @@ export default async function Page({ searchParams }: PageProps) {
                 />
             </Card>
             <Faq />
-            <PaymentDialog />
+            <PaymentDialog companyId={companyId} />
         </>
     )
 }

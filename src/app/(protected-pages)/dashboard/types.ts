@@ -28,12 +28,15 @@ export type RecentCompany = {
     subscription: {
         id: string
         planId: string
+        billingPeriod: 'MONTHLY' | 'YEARLY'
+        price: number
         status: string
         startDate: string
-        endDate: string
+        endDate: string | null
         trialEndDate: string | null
         autoRenew: boolean
-        billingCycle: 'MONTHLY' | 'YEARLY'
+        lastPaymentAt: string | null
+        nextBillingAt: string | null
         createdAt: string
         updatedAt: string
         plan: {
@@ -42,8 +45,6 @@ export type RecentCompany = {
             description: string
             monthlyPrice: number
             yearlyPrice: number
-            finalMonthlyPrice: number
-            finalYearlyPrice: number
             monthlyDiscount: number
             yearlyDiscount: number
             discountType: 'PERCENTAGE' | 'FIXED'

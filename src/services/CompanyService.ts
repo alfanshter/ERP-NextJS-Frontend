@@ -4,6 +4,7 @@ import type {
     CompanyDetail,
     CompanyUser,
     CompanyUsersResponse,
+    CompanySubscriptionResponse,
     CreateCompanyData,
     CreateCompanyUserData,
     UpdateCompanyData,
@@ -37,6 +38,60 @@ export async function getCompanyUsers(
         method: 'get',
         params,
     })
+}
+
+/**
+ * Get company subscription details
+ */
+export async function getCompanySubscription(companyId: string) {
+    return ApiService.fetchDataWithAxios<CompanySubscriptionResponse>({
+        url: `/superadmin/subscriptions/company/${companyId}`,
+        method: 'get',
+    })
+}
+
+/**
+ * Create subscription request payload
+ */
+export type CreateSubscriptionPayload = {
+    planId: string
+    companyId: string
+    billingPeriod: 'MONTHLY' | 'YEARLY'
+    autoRenew: boolean
+    startDate: string
+}
+
+/**
+ * Create subscription for a company
+ */
+export async function createSubscription(
+    data: CreateSubscriptionPayload,
+): Promise<{
+    success: boolean
+    data?: unknown
+    message?: string
+    status?: number
+}> {
+    try {
+        const response = await ApiService.fetchDataWithAxios<unknown>({
+            url: '/superadmin/subscriptions',
+            method: 'post',
+            data,
+        })
+
+        return {
+            success: true,
+            data: response,
+        }
+    } catch (error) {
+        const err = error as { response?: { status?: number; data?: { message?: string } } }
+        console.error('Error creating subscription:', error)
+        return {
+            success: false,
+            message: err.response?.data?.message || 'Failed to create subscription',
+            status: err.response?.status,
+        }
+    }
 }
 
 /**

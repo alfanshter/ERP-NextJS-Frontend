@@ -36,7 +36,7 @@ const CompanyDetails = ({ data }: CompanyDetailsProps) => {
                         </TabList>
                         <div className="p-4">
                             <TabContent value="subscription">
-                                <SubscriptionSection data={data} />
+                                <SubscriptionSection companyId={data.id} />
                             </TabContent>
                             <TabContent value="users">
                                 <UsersSection data={data} />
