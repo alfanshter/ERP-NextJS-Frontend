@@ -1,5 +1,13 @@
 import ApiService from './ApiService'
-import type { Company, CompanyDetail, CreateCompanyData, UpdateCompanyData } from '@/app/(protected-pages)/company/types'
+import type {
+    Company,
+    CompanyDetail,
+    CompanyUser,
+    CompanyUsersResponse,
+    CreateCompanyData,
+    CreateCompanyUserData,
+    UpdateCompanyData,
+} from '@/app/(protected-pages)/company/types'
 
 /**
  * Company API Service
@@ -18,6 +26,51 @@ export type CompanyListResponse = {
 
 export type CompanyResponse = {
     data: Company
+}
+
+export async function getCompanyUsers(
+    companyId: string,
+    params?: { page?: number; limit?: number },
+) {
+    return ApiService.fetchDataWithAxios<CompanyUsersResponse>({
+        url: `/superadmin/companies/${companyId}/users`,
+        method: 'get',
+        params,
+    })
+}
+
+/**
+ * Create new user for a company
+ */
+export async function createCompanyUser(
+    companyId: string,
+    data: CreateCompanyUserData,
+): Promise<{
+    success: boolean
+    data?: CompanyUser
+    message?: string
+    status?: number
+}> {
+    try {
+        const response = await ApiService.fetchDataWithAxios<CompanyUser>({
+            url: `/superadmin/companies/${companyId}/users`,
+            method: 'post',
+            data,
+        })
+
+        return {
+            success: true,
+            data: response,
+        }
+    } catch (error) {
+        const err = error as { response?: { status?: number; data?: { message?: string } } }
+        console.error('Error creating company user:', error)
+        return {
+            success: false,
+            message: err.response?.data?.message || 'Failed to create user',
+            status: err.response?.status,
+        }
+    }
 }
 
 /**

@@ -33,18 +33,24 @@ export type RecentCompany = {
         endDate: string
         trialEndDate: string | null
         autoRenew: boolean
+        billingCycle: 'MONTHLY' | 'YEARLY'
         createdAt: string
         updatedAt: string
         plan: {
             id: string
             name: string
             description: string
-            price: number
-            billingPeriod: string
+            monthlyPrice: number
+            yearlyPrice: number
+            finalMonthlyPrice: number
+            finalYearlyPrice: number
+            monthlyDiscount: number
+            yearlyDiscount: number
+            discountType: 'PERCENTAGE' | 'FIXED'
             features: string[]
-            maxUsers: number
-            maxProjects: number
-            maxStorage: number
+            maxUsers: number | null
+            maxProjects: number | null
+            maxStorage: number | null
             isActive: boolean
             createdAt: string
             updatedAt: string

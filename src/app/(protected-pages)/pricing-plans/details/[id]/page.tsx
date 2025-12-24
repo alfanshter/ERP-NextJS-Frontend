@@ -11,10 +11,9 @@ const statusColor: Record<string, string> = {
     false: 'bg-red-200 dark:bg-red-200 text-gray-900 dark:text-gray-900',
 }
 
-const billingPeriodColor: Record<string, string> = {
-    MONTHLY: 'bg-blue-200 dark:bg-blue-200 text-gray-900 dark:text-gray-900',
-    YEARLY: 'bg-purple-200 dark:bg-purple-200 text-gray-900 dark:text-gray-900',
-    LIFETIME: 'bg-amber-200 dark:bg-amber-200 text-gray-900 dark:text-gray-900',
+const discountTypeLabel: Record<string, string> = {
+    PERCENTAGE: 'Persen',
+    FIXED: 'Nominal',
 }
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
@@ -47,21 +46,50 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         </div>
 
                         <div>
-                            <label className="text-sm text-gray-500">Price</label>
-                            <p className="text-2xl font-bold mt-1">
-                                Rp {plan.price.toLocaleString('id-ID')}
-                            </p>
+                            <label className="text-sm text-gray-500 mb-2 block">Pricing</label>
+                            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-4">
+                                <div>
+                                    <span className="text-sm text-gray-500">Bulanan:</span>
+                                    {plan.monthlyDiscount > 0 && (
+                                        <span className="text-sm text-gray-400 line-through ml-2">
+                                            Rp {plan.monthlyPrice.toLocaleString('id-ID')}
+                                        </span>
+                                    )}
+                                    <p className="text-xl font-bold">
+                                        Rp {plan.finalMonthlyPrice.toLocaleString('id-ID')}
+                                    </p>
+                                    {plan.monthlyDiscount > 0 && (
+                                        <Tag className="bg-red-200 text-red-700 mt-1">
+                                            {plan.discountType === 'PERCENTAGE' 
+                                                ? `Diskon ${plan.monthlyDiscount}%` 
+                                                : `Hemat Rp ${plan.monthlyDiscount.toLocaleString('id-ID')}`}
+                                        </Tag>
+                                    )}
+                                </div>
+                                <div>
+                                    <span className="text-sm text-gray-500">Tahunan:</span>
+                                    {plan.yearlyDiscount > 0 && (
+                                        <span className="text-sm text-gray-400 line-through ml-2">
+                                            Rp {plan.yearlyPrice.toLocaleString('id-ID')}
+                                        </span>
+                                    )}
+                                    <p className="text-xl font-bold">
+                                        Rp {plan.finalYearlyPrice.toLocaleString('id-ID')}
+                                    </p>
+                                    {plan.yearlyDiscount > 0 && (
+                                        <Tag className="bg-red-200 text-red-700 mt-1">
+                                            {plan.discountType === 'PERCENTAGE' 
+                                                ? `Diskon ${plan.yearlyDiscount}%` 
+                                                : `Hemat Rp ${plan.yearlyDiscount.toLocaleString('id-ID')}`}
+                                        </Tag>
+                                    )}
+                                </div>
+                            </div>
                         </div>
 
                         <div>
-                            <label className="text-sm text-gray-500">Billing Period</label>
-                            <div className="mt-1">
-                                <Tag className={billingPeriodColor[plan.billingPeriod]}>
-                                    <span className="capitalize">
-                                        {plan.billingPeriod.toLowerCase()}
-                                    </span>
-                                </Tag>
-                            </div>
+                            <label className="text-sm text-gray-500">Tipe Diskon</label>
+                            <p className="mt-1">{discountTypeLabel[plan.discountType] || plan.discountType}</p>
                         </div>
 
                         <div>

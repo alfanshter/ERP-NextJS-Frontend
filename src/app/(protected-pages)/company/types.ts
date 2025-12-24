@@ -6,18 +6,24 @@ type Subscription = {
     endDate: string
     trialEndDate: string | null
     autoRenew: boolean
+    billingCycle: 'MONTHLY' | 'YEARLY'
     createdAt: string
     updatedAt: string
     plan: {
         id: string
         name: string
         description: string
-        price: number
-        billingPeriod: string
+        monthlyPrice: number
+        yearlyPrice: number
+        finalMonthlyPrice: number
+        finalYearlyPrice: number
+        monthlyDiscount: number
+        yearlyDiscount: number
+        discountType: 'PERCENTAGE' | 'FIXED'
         features: string[]
-        maxUsers: number
-        maxProjects: number
-        maxStorage: number
+        maxUsers: number | null
+        maxProjects: number | null
+        maxStorage: number | null
         isActive: boolean
         createdAt: string
         updatedAt: string
@@ -33,22 +39,40 @@ type CompanyCount = {
     expenses: number
 }
 
-type CompanyUser = {
+export type CompanyUser = {
     id: string
     email: string
     firstName: string
     lastName: string
+    phone: string | null
+    avatar: string | null
+    country: string | null
+    address: string | null
+    city: string | null
+    postalCode: string | null
+    companyId: string
     role: {
         id: string
         name: string
         description: string
-        permissions: string[]
-        isSystem: boolean
-        createdAt: string
-        updatedAt: string
     }
+    lastLoginAt: string | null
     isActive: boolean
     createdAt: string
+    updatedAt: string
+}
+
+export type CreateCompanyUserData = {
+    email: string
+    firstName: string
+    lastName: string
+    phone?: string
+    country?: string
+    address?: string
+    city?: string
+    postalCode?: string
+    roleName: 'admin' | 'manager' | 'staff'
+    isActive?: boolean
 }
 
 export type Company = {
@@ -69,6 +93,16 @@ export type Company = {
 
 export type CompanyDetail = Company & {
     users: CompanyUser[]
+}
+
+export type CompanyUsersResponse = {
+    data: CompanyUser[]
+    meta: {
+        total: number
+        page: number
+        limit: number
+        totalPages: number
+    }
 }
 
 export type GetCompaniesListResponse = {

@@ -16,17 +16,19 @@ import { apiUpdatePricingPlan } from '@/services/PricingPlansService'
 import { TbDeviceFloppy } from 'react-icons/tb'
 import type { PricingPlan } from '../../../types'
 
-const billingPeriodOptions = [
-    { label: 'Monthly', value: 'MONTHLY' },
-    { label: 'Yearly', value: 'YEARLY' },
-    { label: 'Lifetime', value: 'LIFETIME' },
+const discountTypeOptions = [
+    { label: 'Persentase (%)', value: 'PERCENTAGE' },
+    { label: 'Nominal (Rp)', value: 'FIXED' },
 ]
 
 const validationSchema = z.object({
     name: z.string().min(1, { message: 'Plan name is required' }),
     description: z.string().optional(),
-    price: z.number().min(0, { message: 'Price must be positive' }),
-    billingPeriod: z.enum(['MONTHLY', 'YEARLY', 'LIFETIME']),
+    monthlyPrice: z.number().min(0, { message: 'Monthly price must be positive' }),
+    yearlyPrice: z.number().min(0, { message: 'Yearly price must be positive' }),
+    monthlyDiscount: z.number().min(0, { message: 'Discount must be positive' }),
+    yearlyDiscount: z.number().min(0, { message: 'Discount must be positive' }),
+    discountType: z.enum(['PERCENTAGE', 'FIXED']),
     features: z.string().min(1, { message: 'At least one feature is required' }),
     maxUsers: z.number().nullable(),
     maxProjects: z.number().nullable(),
@@ -53,8 +55,11 @@ const PricingPlanEditForm = ({ plan }: PricingPlanEditFormProps) => {
         defaultValues: {
             name: plan.name,
             description: plan.description || '',
-            price: plan.price,
-            billingPeriod: plan.billingPeriod,
+            monthlyPrice: plan.monthlyPrice,
+            yearlyPrice: plan.yearlyPrice,
+            monthlyDiscount: plan.monthlyDiscount,
+            yearlyDiscount: plan.yearlyDiscount,
+            discountType: plan.discountType,
             features: plan.features.join('\n'),
             maxUsers: plan.maxUsers,
             maxProjects: plan.maxProjects,
@@ -76,8 +81,11 @@ const PricingPlanEditForm = ({ plan }: PricingPlanEditFormProps) => {
             const payload = {
                 name: values.name,
                 description: values.description || null,
-                price: values.price,
-                billingPeriod: values.billingPeriod,
+                monthlyPrice: values.monthlyPrice,
+                yearlyPrice: values.yearlyPrice,
+                monthlyDiscount: values.monthlyDiscount,
+                yearlyDiscount: values.yearlyDiscount,
+                discountType: values.discountType,
                 features: featuresArray,
                 maxUsers: values.maxUsers,
                 maxProjects: values.maxProjects,
@@ -109,37 +117,57 @@ const PricingPlanEditForm = ({ plan }: PricingPlanEditFormProps) => {
 
     return (
         <Form onSubmit={handleSubmit(onSubmit)}>
+            <FormItem
+                label="Plan Name"
+                invalid={Boolean(errors.name)}
+                errorMessage={errors.name?.message}
+            >
+                <Controller
+                    name="name"
+                    control={control}
+                    render={({ field }) => (
+                        <Input
+                            placeholder="e.g., Premium"
+                            {...field}
+                        />
+                    )}
+                />
+            </FormItem>
+
+            <FormItem
+                label="Description"
+                invalid={Boolean(errors.description)}
+                errorMessage={errors.description?.message}
+                className="mt-4"
+            >
+                <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                        <Input
+                            textArea
+                            placeholder="Describe this plan..."
+                            {...field}
+                        />
+                    )}
+                />
+            </FormItem>
+
+            <h5 className="mt-6 mb-4">Pricing</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormItem
-                    label="Plan Name"
-                    invalid={Boolean(errors.name)}
-                    errorMessage={errors.name?.message}
+                    label="Harga Bulanan (Rp)"
+                    invalid={Boolean(errors.monthlyPrice)}
+                    errorMessage={errors.monthlyPrice?.message}
                 >
                     <Controller
-                        name="name"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                placeholder="e.g., Premium"
-                                {...field}
-                            />
-                        )}
-                    />
-                </FormItem>
-
-                <FormItem
-                    label="Price"
-                    invalid={Boolean(errors.price)}
-                    errorMessage={errors.price?.message}
-                >
-                    <Controller
-                        name="price"
+                        name="monthlyPrice"
                         control={control}
                         render={({ field }) => (
                             <Input
                                 type="number"
-                                step="0.01"
-                                placeholder="0.00"
+                                step="1"
+                                placeholder="0"
                                 {...field}
                                 onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                             />
@@ -148,23 +176,89 @@ const PricingPlanEditForm = ({ plan }: PricingPlanEditFormProps) => {
                 </FormItem>
 
                 <FormItem
-                    label="Billing Period"
-                    invalid={Boolean(errors.billingPeriod)}
-                    errorMessage={errors.billingPeriod?.message}
+                    label="Harga Tahunan (Rp)"
+                    invalid={Boolean(errors.yearlyPrice)}
+                    errorMessage={errors.yearlyPrice?.message}
                 >
                     <Controller
-                        name="billingPeriod"
+                        name="yearlyPrice"
+                        control={control}
+                        render={({ field }) => (
+                            <Input
+                                type="number"
+                                step="1"
+                                placeholder="0"
+                                {...field}
+                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            />
+                        )}
+                    />
+                </FormItem>
+            </div>
+
+            <h5 className="mt-6 mb-4">Diskon</h5>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormItem
+                    label="Tipe Diskon"
+                    invalid={Boolean(errors.discountType)}
+                    errorMessage={errors.discountType?.message}
+                >
+                    <Controller
+                        name="discountType"
                         control={control}
                         render={({ field }) => (
                             <Select
-                                options={billingPeriodOptions}
-                                value={billingPeriodOptions.find(o => o.value === field.value)}
+                                options={discountTypeOptions}
+                                value={discountTypeOptions.find(o => o.value === field.value)}
                                 onChange={(option) => field.onChange(option?.value)}
                             />
                         )}
                     />
                 </FormItem>
 
+                <FormItem
+                    label="Diskon Bulanan"
+                    invalid={Boolean(errors.monthlyDiscount)}
+                    errorMessage={errors.monthlyDiscount?.message}
+                >
+                    <Controller
+                        name="monthlyDiscount"
+                        control={control}
+                        render={({ field }) => (
+                            <Input
+                                type="number"
+                                step="1"
+                                placeholder="0"
+                                {...field}
+                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            />
+                        )}
+                    />
+                </FormItem>
+
+                <FormItem
+                    label="Diskon Tahunan"
+                    invalid={Boolean(errors.yearlyDiscount)}
+                    errorMessage={errors.yearlyDiscount?.message}
+                >
+                    <Controller
+                        name="yearlyDiscount"
+                        control={control}
+                        render={({ field }) => (
+                            <Input
+                                type="number"
+                                step="1"
+                                placeholder="0"
+                                {...field}
+                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            />
+                        )}
+                    />
+                </FormItem>
+            </div>
+
+            <h5 className="mt-6 mb-4">Limits</h5>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormItem
                     label="Max Users"
                     invalid={Boolean(errors.maxUsers)}
@@ -225,25 +319,6 @@ const PricingPlanEditForm = ({ plan }: PricingPlanEditFormProps) => {
                     />
                 </FormItem>
             </div>
-
-            <FormItem
-                label="Description"
-                invalid={Boolean(errors.description)}
-                errorMessage={errors.description?.message}
-                className="mt-4"
-            >
-                <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                        <Input
-                            textArea
-                            placeholder="Describe this plan..."
-                            {...field}
-                        />
-                    )}
-                />
-            </FormItem>
 
             <FormItem
                 label="Features (one per line)"

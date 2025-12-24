@@ -5,6 +5,7 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import { TbCheck, TbCrown } from 'react-icons/tb'
 import dayjs from 'dayjs'
+import Link from 'next/link'
 import type { CompanyDetail } from '../../../types'
 
 type SubscriptionSectionProps = {
@@ -36,9 +37,11 @@ const SubscriptionSection = ({ data }: SubscriptionSectionProps) => {
                     <p className="text-gray-600 dark:text-gray-400 mb-6">
                         This company doesn&apos;t have an active subscription plan yet.
                     </p>
-                    <Button variant="solid">
-                        Assign Subscription Plan
-                    </Button>
+                    <Link href={`/company/pricing?companyId=${data.id}`}>
+                        <Button variant="solid">
+                            Assign Subscription Plan
+                        </Button>
+                    </Link>
                 </div>
             </Card>
         )
@@ -69,12 +72,14 @@ const SubscriptionSection = ({ data }: SubscriptionSectionProps) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
                         <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                            Price
+                            Harga
                         </span>
                         <p className="text-2xl font-bold text-primary mt-1">
-                            ${plan.price}
+                            Rp {subscription.billingCycle === 'MONTHLY' 
+                                ? plan.finalMonthlyPrice?.toLocaleString('id-ID') 
+                                : plan.finalYearlyPrice?.toLocaleString('id-ID')}
                             <span className="text-sm text-gray-500">
-                                /{plan.billingPeriod.toLowerCase()}
+                                /{subscription.billingCycle === 'MONTHLY' ? 'bulan' : 'tahun'}
                             </span>
                         </p>
                     </div>
@@ -118,9 +123,11 @@ const SubscriptionSection = ({ data }: SubscriptionSectionProps) => {
                 </div>
 
                 <div className="flex gap-2">
-                    <Button variant="solid" className="flex-1">
-                        Change Plan
-                    </Button>
+                    <Link href={`/company/pricing?companyId=${data.id}`} className="flex-1">
+                        <Button variant="solid" className="w-full">
+                            Change Plan
+                        </Button>
+                    </Link>
                     <Button variant="default" className="flex-1">
                         Cancel Subscription
                     </Button>

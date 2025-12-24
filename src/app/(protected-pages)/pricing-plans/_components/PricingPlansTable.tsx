@@ -23,12 +23,6 @@ const statusColor: Record<string, string> = {
     false: 'bg-red-200 dark:bg-red-200 text-gray-900 dark:text-gray-900',
 }
 
-const billingPeriodColor: Record<string, string> = {
-    MONTHLY: 'bg-blue-200 dark:bg-blue-200 text-gray-900 dark:text-gray-900',
-    YEARLY: 'bg-purple-200 dark:bg-purple-200 text-gray-900 dark:text-gray-900',
-    LIFETIME: 'bg-amber-200 dark:bg-amber-200 text-gray-900 dark:text-gray-900',
-}
-
 const ActionColumn = ({
     onDelete,
     onEdit,
@@ -148,27 +142,42 @@ const PricingPlansTable = ({ plans = [] }: PricingPlansTableProps) => {
                 },
             },
             {
-                header: 'Price',
-                accessorKey: 'price',
+                header: 'Monthly Price',
+                accessorKey: 'monthlyPrice',
                 cell: (props) => {
+                    const row = props.row.original
+                    const hasDiscount = row.monthlyDiscount > 0
                     return (
-                        <span className="font-semibold text-lg">
-                            Rp {props.row.original.price.toLocaleString('id-ID')}
-                        </span>
+                        <div className="flex flex-col">
+                            {hasDiscount && (
+                                <span className="text-xs text-gray-400 line-through">
+                                    Rp {row.monthlyPrice.toLocaleString('id-ID')}
+                                </span>
+                            )}
+                            <span className="font-semibold text-lg">
+                                Rp {row.finalMonthlyPrice.toLocaleString('id-ID')}
+                            </span>
+                        </div>
                     )
                 },
             },
             {
-                header: 'Billing Period',
-                accessorKey: 'billingPeriod',
+                header: 'Yearly Price',
+                accessorKey: 'yearlyPrice',
                 cell: (props) => {
-                    const period = props.row.original.billingPeriod
+                    const row = props.row.original
+                    const hasDiscount = row.yearlyDiscount > 0
                     return (
-                        <Tag className={billingPeriodColor[period]}>
-                            <span className="capitalize">
-                                {period.toLowerCase()}
+                        <div className="flex flex-col">
+                            {hasDiscount && (
+                                <span className="text-xs text-gray-400 line-through">
+                                    Rp {row.yearlyPrice.toLocaleString('id-ID')}
+                                </span>
+                            )}
+                            <span className="font-semibold text-lg">
+                                Rp {row.finalYearlyPrice.toLocaleString('id-ID')}
                             </span>
-                        </Tag>
+                        </div>
                     )
                 },
             },
