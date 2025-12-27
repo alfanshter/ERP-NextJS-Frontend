@@ -10,7 +10,7 @@ import StatusSection from './StatusSection'
 import ProfileImageSection from './ProfileImageSection'
 import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, FormProvider } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
 import type { CompanyFormSchema } from './types'
@@ -29,7 +29,22 @@ const validationSchema = z.object({
         .email({ message: 'Invalid email' }),
     phone: z.string().min(1, { message: 'Phone number required' }),
     website: z.string().url({ message: 'Invalid URL format' }).optional().or(z.literal('')),
+    regionId: z.string().optional(),
+    region: z.object({
+        id: z.string(),
+        fullName: z.string(),
+        postalCode: z.string().nullable(),
+        latitude: z.number().nullable(),
+        longitude: z.number().nullable(),
+        village: z.string(),
+        district: z.string(),
+        city: z.string(),
+        province: z.string(),
+    }).nullable().optional(),
     address: z.string().min(1, { message: 'Address required' }),
+    postalCode: z.string().optional(),
+    latitude: z.string().optional(),
+    longitude: z.string().optional(),
     img: z
         .array(
             z.union([
@@ -56,17 +71,19 @@ const CompanyForm = (props: CompanyFormProps) => {
         children,
     } = props
 
-    const {
-        handleSubmit,
-        reset,
-        formState: { errors },
-        control,
-    } = useForm<CompanyFormSchema>({
+    const methods = useForm<CompanyFormSchema>({
         defaultValues: {
             ...defaultValues,
         },
         resolver: zodResolver(validationSchema),
     })
+
+    const {
+        handleSubmit,
+        reset,
+        formState: { errors },
+        control,
+    } = methods
 
     useEffect(() => {
         if (!isEmpty(defaultValues)) {
@@ -80,28 +97,30 @@ const CompanyForm = (props: CompanyFormProps) => {
     }
 
     return (
-        <Form
-            className="flex w-full h-full"
-            containerClassName="flex flex-col w-full justify-between"
-            onSubmit={handleSubmit(onSubmit)}
-        >
-            <Container>
-                <div className="flex flex-col md:flex-row gap-4">
-                    <div className="gap-4 flex flex-col flex-auto">
-                        <OverviewSection control={control} errors={errors} />
-                        <AddressSection control={control} errors={errors} />
+        <FormProvider {...methods}>
+            <Form
+                className="flex w-full h-full"
+                containerClassName="flex flex-col w-full justify-between"
+                onSubmit={handleSubmit(onSubmit)}
+            >
+                <Container>
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="gap-4 flex flex-col flex-auto">
+                            <OverviewSection control={control} errors={errors} />
+                            <AddressSection control={control} errors={errors} />
+                        </div>
+                        <div className="md:w-[370px] gap-4 flex flex-col">
+                            <ProfileImageSection
+                                control={control}
+                                errors={errors}
+                            />
+                            <StatusSection control={control} errors={errors} />
+                        </div>
                     </div>
-                    <div className="md:w-[370px] gap-4 flex flex-col">
-                        <ProfileImageSection
-                            control={control}
-                            errors={errors}
-                        />
-                        <StatusSection control={control} errors={errors} />
-                    </div>
-                </div>
-            </Container>
-            <BottomStickyBar>{children}</BottomStickyBar>
-        </Form>
+                </Container>
+                <BottomStickyBar>{children}</BottomStickyBar>
+            </Form>
+        </FormProvider>
     )
 }
 

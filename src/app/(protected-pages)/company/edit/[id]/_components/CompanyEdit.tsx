@@ -34,7 +34,11 @@ const CompanyEdit = ({ data }: CompanyEditProps) => {
             name?: string
             email?: string
             phone?: string
+            regionId?: string
             address?: string
+            postalCode?: string
+            latitude?: number
+            longitude?: number
             website?: string
             status?: 'TRIAL' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
             logo?: File
@@ -43,9 +47,17 @@ const CompanyEdit = ({ data }: CompanyEditProps) => {
         // Only include changed fields
         if (values.name !== data.name) companyData.name = values.name
         if (values.email !== data.email) companyData.email = values.email
-        if (values.phone !== data.phone) companyData.phone = values.phone
-        if (values.address !== data.address) companyData.address = values.address
-        if (values.website !== data.website) companyData.website = values.website || undefined
+        if (values.phone !== (data.phone || '')) companyData.phone = values.phone
+        if (values.regionId !== (data.regionId || '')) companyData.regionId = values.regionId
+        if (values.address !== (data.address || '')) companyData.address = values.address
+        if (values.postalCode !== (data.postalCode || '')) companyData.postalCode = values.postalCode
+        if (values.latitude && values.latitude !== String(data.latitude || '')) {
+            companyData.latitude = parseFloat(values.latitude)
+        }
+        if (values.longitude && values.longitude !== String(data.longitude || '')) {
+            companyData.longitude = parseFloat(values.longitude)
+        }
+        if (values.website !== (data.website || '')) companyData.website = values.website || undefined
         if (values.status !== data.status) {
             companyData.status = values.status as 'TRIAL' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
         }
@@ -87,11 +99,34 @@ const CompanyEdit = ({ data }: CompanyEditProps) => {
     }
 
     const getDefaultValues = (): CompanyFormSchema => {
+        // Build region object from data if available
+        const region = data.region ? {
+            id: data.region.id,
+            fullName: [
+                data.region.name,
+                data.region.parent?.name,
+                data.region.parent?.parent?.name,
+                data.region.parent?.parent?.parent?.name,
+            ].filter(Boolean).join(', '),
+            postalCode: data.postalCode,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            village: data.region.name,
+            district: data.region.parent?.name || '',
+            city: data.region.parent?.parent?.name || '',
+            province: data.region.parent?.parent?.parent?.name || '',
+        } : null
+
         return {
             name: data.name,
             email: data.email,
-            phone: data.phone,
-            address: data.address,
+            phone: data.phone || '',
+            regionId: data.regionId || '',
+            region: region,
+            address: data.address || '',
+            postalCode: data.postalCode || '',
+            latitude: data.latitude ? String(data.latitude) : '',
+            longitude: data.longitude ? String(data.longitude) : '',
             website: data.website || '',
             status: data.status,
             img: data.logo ? [data.logo] : [],

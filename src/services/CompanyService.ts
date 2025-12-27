@@ -166,7 +166,11 @@ export async function createCompany(data: CreateCompanyData): Promise<{
         formData.append('name', data.name)
         if (data.email) formData.append('email', data.email)
         if (data.phone) formData.append('phone', data.phone)
+        if (data.regionId) formData.append('regionId', data.regionId)
         if (data.address) formData.append('address', data.address)
+        if (data.postalCode) formData.append('postalCode', data.postalCode)
+        if (data.latitude !== undefined) formData.append('latitude', String(data.latitude))
+        if (data.longitude !== undefined) formData.append('longitude', String(data.longitude))
         if (data.website) formData.append('website', data.website)
         formData.append('status', data.status)
         
@@ -217,7 +221,11 @@ export async function updateCompany(
         if (data.name !== undefined) formData.append('name', data.name)
         if (data.email !== undefined) formData.append('email', data.email)
         if (data.phone !== undefined) formData.append('phone', data.phone)
+        if (data.regionId !== undefined) formData.append('regionId', data.regionId)
         if (data.address !== undefined) formData.append('address', data.address)
+        if (data.postalCode !== undefined) formData.append('postalCode', data.postalCode)
+        if (data.latitude !== undefined) formData.append('latitude', String(data.latitude))
+        if (data.longitude !== undefined) formData.append('longitude', String(data.longitude))
         if (data.website !== undefined) formData.append('website', data.website)
         if (data.status !== undefined) formData.append('status', data.status)
         

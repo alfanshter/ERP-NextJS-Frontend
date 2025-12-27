@@ -7,8 +7,25 @@ export type OverviewFields = {
     website?: string
 }
 
+export type RegionOption = {
+    id: string
+    fullName: string
+    postalCode: string | null
+    latitude: number | null
+    longitude: number | null
+    village: string
+    district: string
+    city: string
+    province: string
+}
+
 export type AddressFields = {
+    regionId?: string
+    region?: RegionOption | null
     address: string
+    postalCode?: string
+    latitude?: string
+    longitude?: string
 }
 
 export type ProfileImageFields = {

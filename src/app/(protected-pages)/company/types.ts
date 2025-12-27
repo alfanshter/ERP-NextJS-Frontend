@@ -45,15 +45,6 @@ export type CompanySubscriptionResponse = {
     subscription: Subscription | null
 }
 
-type CompanyCount = {
-    users: number
-    employees: number
-    projects: number
-    procurements: number
-    invoices: number
-    expenses: number
-}
-
 export type CompanyUser = {
     id: string
     email: string
@@ -90,18 +81,44 @@ export type CreateCompanyUserData = {
     isActive?: boolean
 }
 
+export type Region = {
+    id: string
+    name: string
+    level: 'PROVINCE' | 'CITY' | 'DISTRICT' | 'VILLAGE'
+    parentId: string | null
+    postalCode: string | null
+    latitude: number | null
+    longitude: number | null
+    parent?: Region | null
+}
+
+export type CompanyCount = {
+    users: number
+    employees: number
+    projects: number
+    procurements: number
+    invoices: number
+    expenses: number
+}
+
 export type Company = {
     id: string
     name: string
     email: string
-    phone: string
-    address: string
+    phone: string | null
+    regionId: string | null
+    address: string | null
+    postalCode: string | null
+    latitude: number | null
+    longitude: number | null
     logo: string | null
     website: string | null
     status: string
     subscriptionId: string | null
     createdAt: string
     updatedAt: string
+    region: Region | null
+    subscription: Subscription | null
     _count: CompanyCount
 }
 
@@ -140,7 +157,11 @@ export type CreateCompanyData = {
     name: string
     email?: string
     phone?: string
+    regionId?: string
     address?: string
+    postalCode?: string
+    latitude?: number
+    longitude?: number
     website?: string
     status: CompanyStatus
     logo?: File | null

@@ -40,6 +40,58 @@ const NameColumn = ({ row }: { row: Company }) => {
     )
 }
 
+const RegionColumn = ({ row }: { row: Company }) => {
+    if (!row.region) {
+        return <span className="text-gray-400">-</span>
+    }
+
+    // Build location string from nested region
+    const parts: string[] = []
+    let current = row.region
+    while (current) {
+        parts.push(current.name)
+        current = current.parent as typeof current
+    }
+    
+    // Show village/district, city
+    const displayParts = parts.slice(0, 2)
+    return (
+        <Tooltip title={parts.join(', ')}>
+            <span className="text-sm">{displayParts.join(', ')}</span>
+        </Tooltip>
+    )
+}
+
+const SubscriptionColumn = ({ row }: { row: Company }) => {
+    if (!row.subscription) {
+        return (
+            <Tag className="bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-gray-100">
+                No Subscription
+            </Tag>
+        )
+    }
+
+    const statusColors: Record<string, string> = {
+        ACTIVE: 'bg-emerald-200 dark:bg-emerald-200 text-gray-900',
+        EXPIRED: 'bg-red-200 dark:bg-red-200 text-gray-900',
+        CANCELLED: 'bg-gray-200 dark:bg-gray-200 text-gray-900',
+    }
+
+    return (
+        <div className="flex flex-col gap-1">
+            <span className="font-medium">{row.subscription.plan.name}</span>
+            <div className="flex items-center gap-2">
+                <Tag className={statusColors[row.subscription.status] || 'bg-gray-200'}>
+                    {row.subscription.status}
+                </Tag>
+                <span className="text-xs text-gray-500">
+                    {row.subscription.billingPeriod === 'MONTHLY' ? 'Bulanan' : 'Tahunan'}
+                </span>
+            </div>
+        </div>
+    )
+}
+
 const ActionColumn = ({
     onEdit,
     onViewDetail,
@@ -132,6 +184,20 @@ const CompanyListTable = ({
                             </Tag>
                         </div>
                     )
+                },
+            },
+            {
+                header: 'Region',
+                accessorKey: 'region',
+                cell: (props) => {
+                    return <RegionColumn row={props.row.original} />
+                },
+            },
+            {
+                header: 'Subscription',
+                accessorKey: 'subscription',
+                cell: (props) => {
+                    return <SubscriptionColumn row={props.row.original} />
                 },
             },
             {

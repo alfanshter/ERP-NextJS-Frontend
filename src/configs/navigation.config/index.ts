@@ -1,7 +1,7 @@
 import {
     NAV_ITEM_TYPE_ITEM,
 } from '@/constants/navigation.constant'
-import { SUPERADMIN_MASTER, SUPERADMIN_STAFF } from '@/constants/roles.constant'
+import { SUPERADMIN_MASTER, SUPERADMIN_STAFF, ADMIN, MANAGER } from '@/constants/roles.constant'
 
 import type { NavigationTree } from '@/@types/navigation'
 
@@ -24,6 +24,16 @@ const navigationConfig: NavigationTree[] = [
         icon: 'users',
         type: NAV_ITEM_TYPE_ITEM,
         authority: [SUPERADMIN_MASTER],
+        subMenu: [],
+    },
+    {
+        key: 'employees',
+        path: '/employees',
+        title: 'Employees',
+        translateKey: 'nav.employees',
+        icon: 'users',
+        type: NAV_ITEM_TYPE_ITEM,
+        authority: [ADMIN, MANAGER],
         subMenu: [],
     },
     {

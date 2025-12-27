@@ -139,6 +139,20 @@ const ProfileSection = ({ data }: ProfileSectionProps) => {
                         <CompanyInfoField title="Email" value={data.email} />
                         <CompanyInfoField title="Phone" value={data.phone} />
                         <CompanyInfoField title="Address" value={data.address} />
+                        {data.region && (
+                            <div>
+                                <span className="font-semibold text-gray-600 dark:text-gray-400">Region</span>
+                                <p className="heading-text font-bold mt-1">
+                                    {data.region.name}
+                                    {data.region.parent && `, ${data.region.parent.name}`}
+                                    {data.region.parent?.parent && `, ${data.region.parent.parent.name}`}
+                                    {data.region.parent?.parent?.parent && `, ${data.region.parent.parent.parent.name}`}
+                                </p>
+                            </div>
+                        )}
+                        {data.postalCode && (
+                            <CompanyInfoField title="Kode Pos" value={data.postalCode} />
+                        )}
                         {data.website && (
                             <div>
                                 <span className="font-semibold text-gray-600 dark:text-gray-400">Website</span>

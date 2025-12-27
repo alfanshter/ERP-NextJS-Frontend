@@ -1,5 +1,25 @@
 import ApiService from './ApiService'
 
+export type RegionSearchResult = {
+    id: string
+    fullName: string
+    postalCode: string | null
+    latitude: number | null
+    longitude: number | null
+    village: string
+    district: string
+    city: string
+    province: string
+}
+
+export async function apiSearchRegions(query: string, limit: number = 10) {
+    return ApiService.fetchDataWithAxios<RegionSearchResult[]>({
+        url: '/regions/search',
+        method: 'get',
+        params: { q: query, limit },
+    })
+}
+
 export async function apiGetNotificationCount() {
     return ApiService.fetchDataWithAxios<{
         count: number
